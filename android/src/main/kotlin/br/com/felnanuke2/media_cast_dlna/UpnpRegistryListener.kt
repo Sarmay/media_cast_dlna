@@ -7,6 +7,7 @@ import org.jupnp.model.meta.RemoteDevice
 import org.jupnp.registry.Registry
 import org.jupnp.registry.RegistryListener
 import java.lang.Exception
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * RegistryListener implementation for handling UPnP device discovery events.
@@ -21,7 +22,7 @@ import java.lang.Exception
 class UpnpRegistryListener(
 ) : RegistryListener {
 
-    private val _devices = mutableListOf<DlnaDevice>()
+    private val _devices = CopyOnWriteArrayList<DlnaDevice>()
     val devices: List<DlnaDevice> get() = _devices
 
     companion object {
@@ -131,13 +132,8 @@ class UpnpRegistryListener(
 
                 // Remove the device from our list if it failed discovery
                 val dlnaDevice = it.toDlnaDevice()
-                val iterator = _devices.iterator()
-                while (iterator.hasNext()) {
-                    if (iterator.next().udn == dlnaDevice?.udn) {
-                        iterator.remove()
-                     
-                        break
-                    }
+                dlnaDevice?.let {
+                    _devices.removeIf { device -> device.udn == it.udn }
                 }
             }
         }
@@ -190,14 +186,7 @@ class UpnpRegistryListener(
         val deviceUdn = device?.identity?.udn ?: return
        
         // Remove the device from our list
-        val iterator = _devices.iterator()
-        while (iterator.hasNext()) {
-            if (iterator.next().udn.value == deviceUdn.identifierString) {
-                iterator.remove()
-              
-                break
-            }
-        }
+        _devices.removeIf { it.udn.value == deviceUdn.identifierString }
     }
 
     override fun localDeviceAdded(registry: Registry?, device: LocalDevice?) {
@@ -230,15 +219,8 @@ class UpnpRegistryListener(
 
                 // Remove the device from our list
                 val dlnaDevice = it.toDlnaDevice()
-                dlnaDevice?.let { dlna ->
-                    val iterator = _devices.iterator()
-                    while (iterator.hasNext()) {
-                        if (iterator.next().udn == dlna.udn) {
-                            iterator.remove()
-                         
-                            break
-                        }
-                    }
+                dlnaDevice?.let {
+                    _devices.removeIf { device -> device.udn == it.udn }
                 }
             }
         }
