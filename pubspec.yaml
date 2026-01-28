@@ -1,4 +1,4 @@
-name: media_cast_dlna
+name: media_cast_dlna_2
 description: A Flutter plugin for discovering and controlling DLNA/UPnP media devices. Cast media to smart TVs and speakers with ease!
 version: 0.2.0
 homepage: https://github.com/felnanuke2/media_cast_dlna
